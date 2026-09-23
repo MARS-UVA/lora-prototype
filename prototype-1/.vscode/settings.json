@@ -1,0 +1,15 @@
+{
+  "cmake.sourceDirectory": "/Users/vqudus/mars/lora-prototype/prototype-1",
+  "idf.currentSetup": "/Users/vqudus/.espressif/v6.1/esp-idf",
+  "clangd.path": "/Users/vqudus/.espressif/tools/esp-clangd/esp-21.1.3_20260408/esp-clangd/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=/Users/vqudus/mars/lora-prototype/prototype-1/build"
+  ],
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32s3"
+  },
+  "idf.port": "/dev/cu.usbmodem1101",
+  "idf.flashType": "UART"
+}
