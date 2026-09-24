@@ -49,20 +49,17 @@
 // #define PIN_RST     10  // RST
 // #define PIN_G0      0   // G0
 
+// PROPOSITION: Here we can use static allocations. Using the "new" keyword
+// in CPP dynamically allocates to the heap, which is largely avoided in 
+// embedded applications.
+
 // RadioLib ESP-IDF HAL
-EspHal* hal = new EspHal(
-    PIN_SPICLK,      // SCK
-    PIN_SPIQ,     // MISO
-    PIN_SPID      // MOSI
-);
+EspHal hal(PIN_SPICLK, PIN_SPIQ, PIN_SPID);
+
+Module mod(&hal, PIN_CS, PIN_G0, RADIOLIB_NC);
 
 // SX1276 / RFM95
-SX1276 radio = new Module(
-    hal,
-    PIN_CS,             // NSS / CS
-    PIN_G0,             // DIO0 / G0 / IRQ
-    RADIOLIB_NC     // DIO1 not connected
-);
+SX1276 radio(&mod);
 
 static const char* TAG = "RFM95";
 
@@ -76,8 +73,7 @@ uint8_t receiveBuffer[256];
 // INITIALIZE RADIO
 // ============================================================
 
-bool initializeRadio()
-{
+bool initializeRadio(){
     ESP_LOGI(TAG, "Initializing RFM95W...");
 
     int state = radio.begin();
@@ -135,7 +131,9 @@ bool initializeRadio()
         return false;
     }
 
-    // Enable CRC
+    // Enable CRC (Cyclic Redundancy Check): "an error-detecting code used to verify 
+    // message integrity and ensure that data packets have not been corrupted during
+    // wireless transmission"
     state = radio.setCRC(2);
 
     if (state != RADIOLIB_ERR_NONE) {
@@ -167,8 +165,7 @@ bool initializeRadio()
 // TRANSMIT
 // ============================================================
 
-void sendPacket(const char* message)
-{
+void sendPacket(const char* message){
     ESP_LOGI(TAG, "TX: %s", message);
 
     int state = radio.transmit(message);
@@ -184,8 +181,7 @@ void sendPacket(const char* message)
 // ============================================================
 // RECEIVE
 // ============================================================
-void receivePacket()
-{
+void receivePacket(){
     int state = radio.receive(
         receiveBuffer,
         sizeof(receiveBuffer) - 1,
@@ -204,6 +200,7 @@ void receivePacket()
 
         ESP_LOGI(TAG, "RX: %s", (char*)receiveBuffer);
 
+        // RSSI = Received Signal Strength Indicator measuered in dB
         float rssi = radio.getRSSI();
         ESP_LOGI(TAG, "RSSI: %.1f dBm", rssi);
 
@@ -227,8 +224,9 @@ void receivePacket()
 // ============================================================
 // MAIN
 // ============================================================
-extern "C" void app_main(void)
-{
+
+// extern "C" gives this function C-style Linkage
+extern "C" void app_main(void){
     ESP_LOGI(TAG, "================================");
     ESP_LOGI(TAG, "RFM95W LoRa node %d", NODE_ID);
     ESP_LOGI(TAG, "================================");
@@ -239,7 +237,7 @@ extern "C" void app_main(void)
         ESP_LOGE(TAG, "Radio initialization failed");
 
         while (true) {
-            hal->delay(1000);
+            hal.delay(1000);
         }
     }
 
@@ -268,7 +266,7 @@ extern "C" void app_main(void)
         );
 
         sendPacket(message);
-        hal->delay(2000);
+        hal.delay(2000);
     } else {
 
         // ----------------------------------------------------
@@ -280,7 +278,7 @@ extern "C" void app_main(void)
         receivePacket();
 
         // Wait before transmitting again
-        hal->delay(100);
+        hal.delay(100);
     }
     }
 }
