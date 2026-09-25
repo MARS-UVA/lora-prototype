@@ -54,6 +54,8 @@
 // embedded applications.
 
 // RadioLib ESP-IDF HAL
+//
+// Consider stack allocations over dynamic allocations.
 EspHal hal(PIN_SPICLK, PIN_SPIQ, PIN_SPID);
 
 Module mod(&hal, PIN_CS, PIN_G0, RADIOLIB_NC);
@@ -255,18 +257,28 @@ extern "C" void app_main(void){
         // Transmit a packet
         // ----------------------------------------------------
 
-        char message[64];
+        // Testing simple character input from stdin
+        // BE AWARE of chars left in stdin buffer if multiple chars entered before \n
+
+        printf("Enter the singular char you want to transmit: ");
+
+        char c = getchar();
+
+        char message[100];
 
         snprintf(
             message,
             sizeof(message),
-            "Hello from node %d - packet %lu",
+            "Hello from node %d (packet %lu): char = %c",
             NODE_ID,
-            (unsigned long)packetNumber++
+            (unsigned long)packetNumber++,
+            c
         );
 
         sendPacket(message);
+
         hal.delay(2000);
+
     } else {
 
         // ----------------------------------------------------
