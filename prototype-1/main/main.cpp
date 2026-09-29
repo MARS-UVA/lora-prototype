@@ -262,7 +262,7 @@ extern "C" void app_main(void){
 
         printf("Enter the singular char you want to transmit: ");
 
-        char c = getchar();
+        char c = getchar(); // Not working?!??!?
 
         char message[100];
 
