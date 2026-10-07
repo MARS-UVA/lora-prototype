@@ -2,3 +2,6 @@
 build/
 managed_components/
 sdkconfig.old
+a.out
+.cache/
+.vscode/
